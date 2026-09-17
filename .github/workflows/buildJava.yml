@@ -19,7 +19,7 @@ jobs:
           java-version: '21'
           distribution: 'corretto'
 
-      - name: Construction du package et exécution des tests Maven
+      - name: Construction du package et exécution des tests Maven avec SonarQube
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=$(echo ${{ github.repository }} | sed 's-/-_-')
