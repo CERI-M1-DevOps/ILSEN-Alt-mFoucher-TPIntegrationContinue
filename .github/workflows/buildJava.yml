@@ -1,41 +1,29 @@
-name: Build Java Package with Cache
+name: Documentation JavaDoc
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]
+    types: [closed]
 
 jobs:
-  build:
-    name: Build, Test and Analyze
+  deploy-doc:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
       - name: Récupération du code source
         uses: actions/checkout@v4
 
-      - name: Configuration du JDK 21 (Corretto)
+      - name: Configuration du JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'corretto'
 
-      - name: Cache des dépendances Maven
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+      - name: Génération de la JavaDoc avec Maven
+        run: mvn -B javadoc:javadoc -DoutputDirectory=${{ github.workspace }}/target/site/apidocs
 
-      - name: Cache des packages SonarQube
-        uses: actions/cache@v4
+      - name: Déploiement sur GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: |
-            ${{ runner.os }}-sonar
-
-      - name: Construction avec Maven
-        run: mvn -B package
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./target/site/apidocs
