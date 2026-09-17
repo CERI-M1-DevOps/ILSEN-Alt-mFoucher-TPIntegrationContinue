@@ -1,12 +1,14 @@
-name: Build Java Package
+name: Build Java Package with Cache
 
 on:
+  push:
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
 jobs:
   build:
-    name: Build and Test Java Project
+    name: Build, Test and Analyze
     runs-on: ubuntu-latest
 
     steps:
@@ -19,7 +21,21 @@ jobs:
           java-version: '21'
           distribution: 'corretto'
 
-      - name: Construction du package et exécution des tests Maven avec SonarQube
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=$(echo ${{ github.repository }} | sed 's-/-_-')
+      - name: Cache des dépendances Maven
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Cache des packages SonarQube
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: |
+            ${{ runner.os }}-sonar
+
+      - name: Construction avec Maven
+        run: mvn -B package
