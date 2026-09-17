@@ -20,10 +20,10 @@ jobs:
           distribution: 'corretto'
 
       - name: Génération de la JavaDoc avec Maven
-        run: mvn -B javadoc:javadoc -DoutputDirectory=${{ github.workspace }}/target/site/apidocs
+        run: mvn -B javadoc:javadoc
 
       - name: Déploiement sur GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./target/site/apidocs
+          publish_dir: ./moduleListeSimple/target/site/apidocs
