@@ -6,7 +6,6 @@ on:
 
 jobs:
   deploy-doc:
-    # Se déclenche uniquement si la MR a ete merge
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
@@ -21,7 +20,7 @@ jobs:
           distribution: 'corretto'
 
       - name: Génération de la JavaDoc avec Maven
-        run: mvn -B javadoc:javadoc
+        run: mvn -B javadoc:javadoc -DreportOutputDirectory="${{ github.workspace }}/target/site/apidocs"
 
       - name: Déploiement sur GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
